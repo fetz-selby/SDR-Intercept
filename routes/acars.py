@@ -72,7 +72,7 @@ def get_acarsdec_json_flag(acarsdec_path: str) -> str:
             major = int(version_match.group(1))
             # Version 4.0+ uses -j for JSON stdout
             if major >= 4:
-                return '-j'
+                return '-o'
             # Version 3.x uses -o for output mode
             else:
                 return '-o'
