@@ -75,7 +75,7 @@ def get_acarsdec_json_flag(acarsdec_path: str) -> str:
                 return '-o 4'
             # Version 3.x uses -o for output mode
             else:
-                return '-o'
+                return '-o 4'
     except Exception as e:
         logger.debug(f"Could not detect acarsdec version: {e}")
 
