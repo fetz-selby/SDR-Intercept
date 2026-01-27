@@ -50,37 +50,12 @@ def find_acarsdec():
 
 
 def get_acarsdec_json_flag(acarsdec_path: str) -> str:
-    """Detect which JSON output flag acarsdec supports.
-
-    Version 4.0+ uses -j for JSON stdout.
-    Version 3.x uses -o 4 for JSON stdout.
+    """Return the JSON output flag for acarsdec.
+    
+    acarsdec uses -o 4 for JSON stdout output across all versions.
+    The -j flag is only for UDP JSON output, not stdout.
     """
-    try:
-        # Get version by running acarsdec with no args (shows usage with version)
-        result = subprocess.run(
-            [acarsdec_path],
-            capture_output=True,
-            text=True,
-            timeout=5
-        )
-        output = result.stdout + result.stderr
-
-        # Parse version from output like "Acarsdec v4.3.1" or "Acarsdec/acarsserv 3.7"
-        import re
-        version_match = re.search(r'acarsdec[^\d]*v?(\d+)\.(\d+)', output, re.IGNORECASE)
-        if version_match:
-            major = int(version_match.group(1))
-            # Version 4.0+ uses -j for JSON stdout
-            if major >= 4:
-                return '-o'
-            # Version 3.x uses -o for output mode
-            else:
-                return '-o'
-    except Exception as e:
-        logger.debug(f"Could not detect acarsdec version: {e}")
-
-    # Default to -j (modern standard for current builds from source)
-    return '-j'
+    return '-o'
 
 
 def stream_acars_output(process: subprocess.Popen, is_text_mode: bool = False) -> None:
@@ -210,8 +185,9 @@ def start_acars() -> Response:
     acars_last_message_time = None
 
     # Build acarsdec command
-    # acarsdec -j -g <gain> -p <ppm> -r <device> <freq1> <freq2> ...
-    # Note: -j is JSON stdout (newer forks), -o 4 was the old syntax
+    # acarsdec -o 4 -g <gain> -p <ppm> -r <device> <freq1> <freq2> ...
+    # Note: -o 4 is JSON stdout output (works across all versions)
+    # The -j flag is only for UDP JSON output, not stdout
     # gain/ppm must come BEFORE -r
     json_flag = get_acarsdec_json_flag(acarsdec_path)
     cmd = [acarsdec_path]
